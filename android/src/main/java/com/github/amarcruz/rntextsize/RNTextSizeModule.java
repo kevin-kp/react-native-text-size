@@ -124,6 +124,7 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                             .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
                             .setIncludePad(includeFontPadding)
                             .setLineSpacing(SPACING_ADDITION, SPACING_MULTIPLIER)
+                            .setMaxLines(conf.getMaxLines())
                             .build();
                 } else {
                     layout = new StaticLayout(

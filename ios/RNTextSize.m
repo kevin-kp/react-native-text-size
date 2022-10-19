@@ -97,9 +97,13 @@ RCT_EXPORT_METHOD(measure:(NSDictionary * _Nullable)options
   ? @{NSFontAttributeName: font}
   : @{NSFontAttributeName: font, NSKernAttributeName: @(letterSpacing)};
 
+  const CGFloat optMaxLines = options[@"maxNumberOfLines"].unsignedIntegerValue;
+  const CGFloat maxLines = isnan(maxLines) || isinf(maxLines) ? 0 : maxLines;
+
   NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:maxSize];
   textContainer.lineFragmentPadding = 0.0;
-  textContainer.lineBreakMode = NSLineBreakByClipping; // no maxlines support
+  textContainer.lineBreakMode = NSLineBreakByWordWrapping;
+  textContainer.maximumNumberOfLines = maxLines
 
   NSLayoutManager *layoutManager = [NSLayoutManager new];
   [layoutManager addTextContainer:textContainer];
@@ -170,6 +174,9 @@ RCT_EXPORT_METHOD(flatHeights:(NSDictionary * _Nullable)options
   const CGFloat maxWidth = isnan(optWidth) || isinf(optWidth) ? CGFLOAT_MAX : optWidth;
   const CGSize maxSize = CGSizeMake(maxWidth, CGFLOAT_MAX);
 
+  const CGFloat optMaxLines = options[@"maxNumberOfLines"].unsignedIntegerValue;
+  const CGFloat maxLines = isnan(maxLines) || isinf(maxLines) ? 0 : maxLines;
+
   // Create attributes for the font and the optional letter spacing.
   const CGFloat letterSpacing = CGFloatValueFrom(options[@"letterSpacing"]);
   NSDictionary<NSAttributedStringKey,id> *const attributes = isnan(letterSpacing)
@@ -178,7 +185,8 @@ RCT_EXPORT_METHOD(flatHeights:(NSDictionary * _Nullable)options
 
   NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:maxSize];
   textContainer.lineFragmentPadding = 0.0;
-  textContainer.lineBreakMode = NSLineBreakByClipping; // no maxlines support
+  textContainer.lineBreakMode = NSLineBreakByWordWrapping;
+  textContainer.maximumNumberOfLines = maxLines;
 
   NSLayoutManager *layoutManager = [NSLayoutManager new];
   [layoutManager addTextContainer:textContainer];

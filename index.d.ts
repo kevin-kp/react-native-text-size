@@ -95,6 +95,11 @@ declare module "react-native-text-size" {
     width?: number;
     /** @default true */
     allowFontScaling?: boolean;
+    /**
+     * Restrict the number of lines.
+     * @default MAX_INT
+     */
+    maxNumberOfLines?: number;
   }
 
   export interface TSMeasureParams extends TSFontSpecs {
@@ -127,6 +132,11 @@ declare module "react-native-text-size" {
      * for the required line number.
      */
     lineInfoForLine?: number;
+    /**
+     * Restrict the number of lines.
+     * @default MAX_INT
+     */
+    maxNumberOfLines?: number;
   }
 
   export type TSMeasureResult = {
