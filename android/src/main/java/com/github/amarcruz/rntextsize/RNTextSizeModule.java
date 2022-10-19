@@ -10,7 +10,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.widget.TextView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -164,8 +163,14 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
             }
 
             result.putDouble("width", Math.min(rectWidth / density, width));
-            result.putDouble("height", Math.min(layout.getHeight() / density, maxHeight));
-            result.putInt("lineCount", Math.min(lineCount, conf.getMaxLines()));
+            double calculatedHeight = layout.getHeight() / density;
+            if (conf.getMaxLines() > 0) {
+                result.putDouble("height", Math.min(calculatedHeight, maxHeight));
+                result.putInt("lineCount", Math.min(lineCount, conf.getMaxLines()));
+            } else {
+                result.putDouble("height", calculatedHeight);
+                result.putInt("lineCount", lineCount);
+            }
 
             Integer lineInfoForLine = conf.getIntOrNull("lineInfoForLine");
             if (lineInfoForLine != null && lineInfoForLine >= 0) {
@@ -227,7 +232,12 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                     continue;
                 }
 
-                result.pushDouble(Math.min(getHeight(conf, textPaint, sb, text), maxHeight));
+                double calculatedHeight = getHeight(conf, textPaint, sb, text);
+                if (conf.getMaxLines() > 0) {
+                    result.pushDouble(Math.min(calculatedHeight, maxHeight));
+                } else {
+                    result.pushDouble(calculatedHeight);
+                }
             }
 
             promise.resolve(result);
