@@ -104,7 +104,7 @@ RCT_EXPORT_METHOD(measure:(NSDictionary * _Nullable)options
   NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:maxSize];
   textContainer.lineFragmentPadding = 0.0;
   textContainer.lineBreakMode = NSLineBreakByWordWrapping;
-  textContainer.maximumNumberOfLines = maxLines
+  textContainer.maximumNumberOfLines = maxLines;
 
   NSLayoutManager *layoutManager = [NSLayoutManager new];
   [layoutManager addTextContainer:textContainer];
