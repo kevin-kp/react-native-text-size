@@ -97,8 +97,9 @@ RCT_EXPORT_METHOD(measure:(NSDictionary * _Nullable)options
   ? @{NSFontAttributeName: font}
   : @{NSFontAttributeName: font, NSKernAttributeName: @(letterSpacing)};
 
-  const CGFloat optMaxLines = options[@"maxNumberOfLines"].unsignedIntegerValue;
-  const CGFloat maxLines = isnan(maxLines) || isinf(maxLines) ? 0 : maxLines;
+  const NSNumber* _Nullable maxLinesNumber = options[@"maxNumberOfLines"];
+  const NSUInteger optMaxLines = maxLinesNumber ? 0 : maxLinesNumber.unsignedIntegerValue;
+  const NSUInteger maxLines = isnan(optMaxLines) || isinf(optMaxLines) ? 0 : optMaxLines;
 
   NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:maxSize];
   textContainer.lineFragmentPadding = 0.0;
@@ -174,8 +175,9 @@ RCT_EXPORT_METHOD(flatHeights:(NSDictionary * _Nullable)options
   const CGFloat maxWidth = isnan(optWidth) || isinf(optWidth) ? CGFLOAT_MAX : optWidth;
   const CGSize maxSize = CGSizeMake(maxWidth, CGFLOAT_MAX);
 
-  const CGFloat optMaxLines = options[@"maxNumberOfLines"].unsignedIntegerValue;
-  const CGFloat maxLines = isnan(maxLines) || isinf(maxLines) ? 0 : maxLines;
+  const NSNumber* _Nullable maxLinesNumber = options[@"maxNumberOfLines"];
+  const NSUInteger optMaxLines = maxLinesNumber ? 0 : maxLinesNumber.unsignedIntegerValue;
+  const NSUInteger maxLines = isnan(optMaxLines) || isinf(optMaxLines) ? 0 : optMaxLines;
 
   // Create attributes for the font and the optional letter spacing.
   const CGFloat letterSpacing = CGFloatValueFrom(options[@"letterSpacing"]);
