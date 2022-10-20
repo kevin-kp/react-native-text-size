@@ -130,6 +130,15 @@ final class RNTextSizeConf {
         }
     }
 
+    int getMaxLines() {
+        Integer maxLines = getIntOrNull("maxNumberOfLines");
+        if (maxLines == null) {
+            return 0;
+        } else {
+            return maxLines;
+        }
+    }
+
     int getTextBreakStrategy() {
         if (Build.VERSION.SDK_INT < 23) {
             return 0;

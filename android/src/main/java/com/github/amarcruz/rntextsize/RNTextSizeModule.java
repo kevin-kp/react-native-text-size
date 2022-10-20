@@ -92,6 +92,10 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                 .spannedFromSpecsAndText(mReactContext, conf, new SpannableString(_text));
 
         final TextPaint textPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+
+        final SpannableStringBuilder sb = new SpannableStringBuilder(" ");
+        final double maxHeight = getMaxHeight(conf, textPaint, sb);
+
         Layout layout = null;
         try {
             final BoringLayout.Metrics boring = BoringLayout.isBoring(text, textPaint);
@@ -124,6 +128,7 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                             .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
                             .setIncludePad(includeFontPadding)
                             .setLineSpacing(SPACING_ADDITION, SPACING_MULTIPLIER)
+                            .setMaxLines(conf.getMaxLines())
                             .build();
                 } else {
                     layout = new StaticLayout(
@@ -158,8 +163,14 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
             }
 
             result.putDouble("width", Math.min(rectWidth / density, width));
-            result.putDouble("height", layout.getHeight() / density);
-            result.putInt("lineCount", lineCount);
+            double calculatedHeight = layout.getHeight() / density;
+            if (conf.getMaxLines() > 0) {
+                result.putDouble("height", Math.min(calculatedHeight, maxHeight));
+                result.putInt("lineCount", Math.min(lineCount, conf.getMaxLines()));
+            } else {
+                result.putDouble("height", calculatedHeight);
+                result.putInt("lineCount", lineCount);
+            }
 
             Integer lineInfoForLine = conf.getIntOrNull("lineInfoForLine");
             if (lineInfoForLine != null && lineInfoForLine >= 0) {
@@ -195,9 +206,7 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
         }
 
         final float density = getCurrentDensity();
-        final float width = conf.getWidth(density);
         final boolean includeFontPadding = conf.includeFontPadding;
-        final int textBreakStrategy = conf.getTextBreakStrategy();
 
         final WritableArray result = Arguments.createArray();
 
@@ -205,11 +214,10 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
         RNTextSizeSpannedText.spannedFromSpecsAndText(mReactContext, conf, sb);
 
         final TextPaint textPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-        Layout layout;
+        final double maxHeight = getMaxHeight(conf, textPaint, sb);
         try {
 
             for (int ix = 0; ix < texts.size(); ix++) {
-
                 // If this element is `null` or another type, return zero
                 if (texts.getType(ix) != ReadableType.String) {
                     result.pushInt(0);
@@ -224,36 +232,57 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                     continue;
                 }
 
-                // Reset the SB text, the attrs will expand to its full length
-                sb.replace(0, sb.length(), text);
-
-                if (Build.VERSION.SDK_INT >= 23) {
-                    layout = StaticLayout.Builder.obtain(sb, 0, sb.length(), textPaint, (int) width)
-                            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                            .setBreakStrategy(textBreakStrategy)
-                            .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
-                            .setIncludePad(includeFontPadding)
-                            .setLineSpacing(SPACING_ADDITION, SPACING_MULTIPLIER)
-                            .build();
+                double calculatedHeight = getHeight(conf, textPaint, sb, text);
+                if (conf.getMaxLines() > 0) {
+                    result.pushDouble(Math.min(calculatedHeight, maxHeight));
                 } else {
-                    layout = new StaticLayout(
-                            sb,
-                            textPaint,
-                            (int) width,
-                            Layout.Alignment.ALIGN_NORMAL,
-                            SPACING_MULTIPLIER,
-                            SPACING_ADDITION,
-                            includeFontPadding
-                    );
+                    result.pushDouble(calculatedHeight);
                 }
-
-                result.pushDouble(layout.getHeight() / density);
             }
 
             promise.resolve(result);
         } catch (Exception e) {
             promise.reject(E_UNKNOWN_ERROR, e);
         }
+    }
+
+    private double getMaxHeight(RNTextSizeConf conf, TextPaint textPaint, SpannableStringBuilder sb) {
+        final int maxLines = conf.getMaxLines();
+        final String maxHeightText = String.join("", Collections.nCopies(maxLines, "\n"));
+        return getHeight(conf, textPaint, sb, maxHeightText);
+    }
+
+    private double getHeight(RNTextSizeConf conf, TextPaint textPaint, SpannableStringBuilder sb, String text) {
+        final float density = getCurrentDensity();
+        final float width = conf.getWidth(density);
+        final boolean includeFontPadding = conf.includeFontPadding;
+        final int textBreakStrategy = conf.getTextBreakStrategy();
+
+        Layout layout;
+        // Reset the SB text, the attrs will expand to its full length
+        sb.replace(0, sb.length(), text);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            layout = StaticLayout.Builder.obtain(sb, 0, sb.length(), textPaint, (int) width)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setBreakStrategy(textBreakStrategy)
+                    .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                    .setIncludePad(includeFontPadding)
+                    .setLineSpacing(SPACING_ADDITION, SPACING_MULTIPLIER)
+                    .setMaxLines(conf.getMaxLines())
+                    .build();
+        } else {
+            layout = new StaticLayout(
+                    sb,
+                    textPaint,
+                    (int) width,
+                    Layout.Alignment.ALIGN_NORMAL,
+                    SPACING_MULTIPLIER,
+                    SPACING_ADDITION,
+                    includeFontPadding
+            );
+        }
+        return layout.getHeight() / density;
     }
 
     /**
