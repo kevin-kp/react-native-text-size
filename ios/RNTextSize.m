@@ -98,7 +98,7 @@ RCT_EXPORT_METHOD(measure:(NSDictionary * _Nullable)options
   : @{NSFontAttributeName: font, NSKernAttributeName: @(letterSpacing)};
 
   const NSNumber* _Nullable maxLinesNumber = options[@"maxNumberOfLines"];
-  const NSUInteger optMaxLines = maxLinesNumber ? 0 : maxLinesNumber.unsignedIntegerValue;
+  const NSUInteger optMaxLines = maxLinesNumber ? maxLinesNumber.unsignedIntegerValue: 0;
   const NSUInteger maxLines = isnan(optMaxLines) || isinf(optMaxLines) ? 0 : optMaxLines;
 
   NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:maxSize];
@@ -176,7 +176,7 @@ RCT_EXPORT_METHOD(flatHeights:(NSDictionary * _Nullable)options
   const CGSize maxSize = CGSizeMake(maxWidth, CGFLOAT_MAX);
 
   const NSNumber* _Nullable maxLinesNumber = options[@"maxNumberOfLines"];
-  const NSUInteger optMaxLines = maxLinesNumber ? 0 : maxLinesNumber.unsignedIntegerValue;
+  const NSUInteger optMaxLines = maxLinesNumber ? maxLinesNumber.unsignedIntegerValue : 0;
   const NSUInteger maxLines = isnan(optMaxLines) || isinf(optMaxLines) ? 0 : optMaxLines;
 
   // Create attributes for the font and the optional letter spacing.
