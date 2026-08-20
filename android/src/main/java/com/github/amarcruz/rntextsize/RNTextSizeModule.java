@@ -460,9 +460,8 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
     /**
      * Retuns the current density.
      */
-    @SuppressWarnings("deprecation")
     private float getCurrentDensity() {
-        return DisplayMetricsHolder.getWindowDisplayMetrics().density;
+        return DisplayMetricsHolder.getScreenDisplayMetrics().density;
     }
 
     private static final String[] FILE_EXTENSIONS = {".ttf", ".otf"};
