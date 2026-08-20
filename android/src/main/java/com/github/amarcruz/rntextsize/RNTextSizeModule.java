@@ -460,7 +460,6 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
     /**
      * Retuns the current density.
      */
-    @SuppressWarnings("deprecation")
     private float getCurrentDensity() {
         return DisplayMetricsHolder.getScreenDisplayMetrics().density;
     }
